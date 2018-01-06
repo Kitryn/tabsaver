@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var save = document.getElementById('save');
     var load = document.getElementById('load');
     var file = document.getElementById('file');
+    var closeDupes = document.getElementById('closeDupes');
     
     // Load event listeners for buttons
     save.addEventListener('click', function() {
@@ -10,10 +11,40 @@ document.addEventListener('DOMContentLoaded', function() {
     load.addEventListener('click', function() {
         document.form.file.click(event);
     });
+    closeDupes.addEventListener('click', function() {
+        closeDuplicateTabs();
+    });
     file.addEventListener('change', function() {
         loadArrayFromFile();
     });
 });
+
+function closeDuplicateTabs() {
+    // console.log('closeDuplicateTabs running');
+    var query = {
+        currentWindow: true,
+    };
+    
+    // Get a list of tab URLs opened in the current window
+    chrome.tabs.query(query, function(tabs) {
+        var arrURLs = [];
+        for (var i = 0; i < tabs.length; i++) {
+            // tabs[i].id shows the id of the tab
+            // tabs[i].url shows the url of the tab
+            if (arrURLs.indexOf(tabs[i].url) < 0) {
+                // new unique tab, add it to the list of tabs
+                arrURLs.push(tabs[i].url);
+            } else {
+                // another tab with the same url already exists
+                // close the current tab
+                console.log('Removing tab with url ' + tabs[i].url);
+                chrome.tabs.remove(tabs[i].id, function() {
+                    // pass
+                });
+            };
+        };
+    });
+};
 
 function getAllURLsFromWindow() {
     var query = {
@@ -22,11 +53,11 @@ function getAllURLsFromWindow() {
     // Gets a list of tab URLS opened in the current window
     chrome.tabs.query(query, function(tabs) {
         var arrURLs = [];
-        for (i = 0; i < tabs.length; i++) {
-            arrURLs.push(tabs[i].url)
+        for (var i = 0; i < tabs.length; i++) {
+            arrURLs.push(tabs[i].url);
         };
         // debugShowOutput(JSON.stringify(arrURLs));
-        writeArrayToFile(arrURLs)
+        writeArrayToFile(arrURLs);
     });
 };
 
@@ -44,7 +75,7 @@ function loadArrayFromFile() {
         };
         
         // Init the FileReader
-        reader.readAsText(file)
+        reader.readAsText(file);
     }
 };
 

@@ -1,6 +1,3 @@
-var thisId = chrome.runtime.id;
-var basePath = 'blob:chrome-extension://' + thisId;
-
 document.addEventListener('DOMContentLoaded', function() {
     var save = document.getElementById('save');
     var load = document.getElementById('load');
@@ -19,15 +16,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     file.addEventListener('change', function() {
         loadArrayFromFile();
-    });
-    
-    chrome.downloads.onDeterminingFilename.addListener(function(downloadItem, suggest) {
-        if (downloadItem.url.startsWith(basePath)) {
-            suggest({filename: 'urls.txt'});
-        } else {
-            suggest();
-        }
-        return true;
     });
 });
 
@@ -100,13 +88,7 @@ function loadAllURLsFromArray(arr) {
 function writeArrayToFile(arr) {
     window.URL = window.URL || window.webkitURL;
     
-    // Workaround to download a .txt file containing the list of URLs
-    var file = new Blob([JSON.stringify(arr)], {type: 'plain/text'});
-    var url = window.URL.createObjectURL(file);
-    console.log(thisId);
-    chrome.tabs.create({url: url});
-
-    window.URL.revokeObjectURL(url);
+    chrome.runtime.sendMessage({task: 'saveFile', arr: arr});    
 };
 
 function debugShowOutput(info) {

@@ -31,9 +31,11 @@ function closeDuplicateTabs() {
         for (var i = 0; i < tabs.length; i++) {
             // tabs[i].id shows the id of the tab
             // tabs[i].url shows the url of the tab
-            if (arrURLs.indexOf(tabs[i].url) < 0) {
+            let normalizedUrl = tabs[i].url.replace('data:text/html,<title>', '');
+
+            if (arrURLs.indexOf(normalizedUrl) < 0) {
                 // new unique tab, add it to the list of tabs
-                arrURLs.push(tabs[i].url);
+                arrURLs.push(normalizedUrl);
             } else {
                 // another tab with the same url already exists
                 // close the current tab

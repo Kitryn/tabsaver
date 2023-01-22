@@ -54,7 +54,14 @@ function getAllURLsFromWindow() {
     chrome.tabs.query(query, function(tabs) {
         var arrURLs = [];
         for (var i = 0; i < tabs.length; i++) {
-            arrURLs.push(tabs[i].url);
+            const splitText = 'data:text/html,<title>';
+
+            if (tabs[i].url.startsWith(splitText)) {
+                const realTabUrl = tab.url.replace(splitText, '');
+                arrURLs.push(realTabUrl);
+            } else {
+                arrURLs.push(tabs[i].url);
+            }
         };
         // debugShowOutput(JSON.stringify(arrURLs));
         writeArrayToFile(arrURLs);

@@ -42,11 +42,12 @@ chrome.downloads.onChanged.addListener(function(downloadItem) {
     }
 });
 
-chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
     if (msg.task == 'openTabs') {
         // Runs in the background, opening tabs for each URL in array
         for (i = 0; i < msg.arr.length; i++) {
-            chrome.tabs.create({url: msg.arr[i]});
+            // chrome.tabs.create({url: msg.arr[i]});
+            chrome.tabs.create({ url: 'data:text/html,<title>' + msg.arr[i] });
         };
     } else if (msg.task == 'saveFile') {
         // Workaround to download a .txt file containing the list of URLs
@@ -59,4 +60,20 @@ chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
             openWindows[url] = newWindow.id;
         });
     }
+});
+
+// https://stackoverflow.com/questions/67009241/google-chrome-extension-how-to-open-a-new-tab-in-a-discarded-hibernating-state
+// When the new tab is selected, get the link in the title and load the page
+chrome.tabs.onActivated.addListener(({ tabId, windowId }) => {
+    const splitText = 'data:text/html,<title>';
+
+    chrome.tabs.get(tabId, tab => {
+        if (tab.url.startsWith(splitText)) {
+            const realTabUrl = tab.url.replace(splitText, '');
+
+            chrome.tabs.update(tabId, {
+                url: realTabUrl,
+            });
+        }
+    });
 });
